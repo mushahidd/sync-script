@@ -1373,7 +1373,7 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
                   <option value="">Choose a source...</option>
                   {vaultData?.sources.map((source) => (
                     <option key={source.id} value={source.id}>
-                      {source.title} ({source.author}, {source.year})
+                      {source.title}
                     </option>
                   ))}
                 </select>
