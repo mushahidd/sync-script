@@ -73,8 +73,41 @@ export async function GET(
       );
     }
 
-    console.log('API: Vault found successfully:', vault.title);
-    return NextResponse.json(vault);
+    // Also fetch all annotations for this vault (via sources)
+    const allAnnotations = await prisma.annotation.findMany({
+      where: {
+        source: {
+          vaultId: id,
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        source: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Return vault with top-level annotations array
+    const response = {
+      ...vault,
+      annotations: allAnnotations,
+    };
+
+    console.log('API: Vault found successfully:', vault.title, 'with', allAnnotations.length, 'annotations');
+    return NextResponse.json(response);
   } catch (error) {
     console.error('API Error fetching vault:', error);
     return NextResponse.json(

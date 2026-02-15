@@ -50,6 +50,10 @@ interface VaultData {
       name: string;
       email: string;
     };
+    source?: {
+      id: string;
+      title: string;
+    };
   }>;
   members: Array<{
     id: string;
@@ -1102,7 +1106,8 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
                 if (activeTab === "annotations") {
                   const filteredAnnotations = vaultData?.annotations?.filter(annotation =>
                     annotation.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    annotation.author.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    annotation.author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (annotation.source?.title?.toLowerCase().includes(searchQuery.toLowerCase()))
                   ) || [];
 
                   return (
@@ -1136,6 +1141,11 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
                                 <CardContent className="p-6">
                                   <div className="flex items-start justify-between mb-3">
                                     <div className="flex items-center gap-2">
+                                      {annotation.source && (
+                                        <span className="text-xs text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/20">
+                                          📄 {annotation.source.title}
+                                        </span>
+                                      )}
                                       {annotation.pageNumber && (
                                         <span className="text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">
                                           Page {annotation.pageNumber}
@@ -1155,8 +1165,13 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
                                       )}
                                     </div>
                                   </div>
-                                  <p className="text-slate-300 mb-2">{annotation.content}</p>
-                                  <p className="text-sm text-slate-500">by {annotation.author.name}</p>
+                                  <p className="text-slate-300 mb-3 leading-relaxed">{annotation.content}</p>
+                                  <div className="flex items-center gap-2 pt-2 border-t border-slate-800">
+                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                                      <span className="text-white text-xs font-bold">{annotation.author.name.charAt(0)}</span>
+                                    </div>
+                                    <p className="text-sm text-slate-400">{annotation.author.name}</p>
+                                  </div>
                                 </CardContent>
                               </Card>
                             </motion.div>
