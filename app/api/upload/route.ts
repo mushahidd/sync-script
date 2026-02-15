@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, unlink } from 'fs/promises';
-import { join } from 'path';
 import prisma from '@/lib/prisma';
-import { uploadToCloudinary } from '@/lib/cloudinary';
+import { uploadBufferToCloudinary } from '@/lib/cloudinary';
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,89 +59,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure user is not a VIEWER (read-only)
-    if (membership.role === 'VIEWER') {
-      return NextResponse.json(
-        { error: 'Viewers cannot upload files. Only owners and contributors can upload PDFs.' },
-        { status: 403 }
-      );
-    }
-
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create temporary file path
-    const tempDir = join(process.cwd(), 'tmp');
-    const timestamp = Date.now();
-    // Clean filename for Cloudinary (remove special chars except spaces, dots, hyphens)
-    const cleanFileName = file.name.replace(/[^a-zA-Z0-9. -]/g, '');
-    const tempFileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const tempFilePath = join(tempDir, tempFileName);
+    // Upload directly to Cloudinary (no temp file needed - works on serverless)
+    const uploadResult = await uploadBufferToCloudinary(
+      buffer,
+      'syncscript_pdfs',
+      file.name
+    );
 
-    // Ensure tmp directory exists
-    try {
-      const { mkdir } = await import('fs/promises');
-      await mkdir(tempDir, { recursive: true });
-    } catch (err) {
-      // Directory might already exist
+    if (!uploadResult.success || !uploadResult.url) {
+      throw new Error(uploadResult.error || 'Upload to Cloudinary failed');
     }
 
-    // Write file temporarily
-    await writeFile(tempFilePath, buffer);
-
-    try {
-      // Upload to Cloudinary with PUBLIC access mode
-      const uploadResult = await uploadToCloudinary(
-        tempFilePath,
-        'syncscript_pdfs',
-        'auto',
-        cleanFileName
-      );
-
-      if (!uploadResult.success || !uploadResult.url) {
-        throw new Error(uploadResult.error || 'Upload to Cloudinary failed');
-      }
-
-      // Save to database with publicId
-      const fileUpload = await prisma.fileUpload.create({
-        data: {
-          fileName: file.name,
-          fileUrl: uploadResult.url,
-          publicId: uploadResult.publicId,
-          vaultId,
-          uploadedBy,
-        },
-        include: {
-          vault: true,
-          uploader: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
+    // Save to database with publicId
+    const fileUpload = await prisma.fileUpload.create({
+      data: {
+        fileName: file.name,
+        fileUrl: uploadResult.url,
+        publicId: uploadResult.publicId,
+        vaultId,
+        uploadedBy,
+      },
+      include: {
+        vault: true,
+        uploader: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
           },
         },
-      });
+      },
+    });
 
-      // Delete temporary file
-      await unlink(tempFilePath);
-
-      return NextResponse.json({
-        success: true,
-        file: fileUpload,
-        message: 'File uploaded successfully',
-      });
-    } catch (uploadError) {
-      // Clean up temporary file on error
-      try {
-        await unlink(tempFilePath);
-      } catch (unlinkError) {
-        console.error('Error deleting temp file:', unlinkError);
-      }
-
-      throw uploadError;
-    }
+    return NextResponse.json({
+      success: true,
+      file: fileUpload,
+      message: 'File uploaded successfully',
+    });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(

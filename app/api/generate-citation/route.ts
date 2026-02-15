@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, unlink } from 'fs/promises';
-import { join } from 'path';
 import prisma from '@/lib/prisma';
 import { parsePDF } from '@/lib/pdf-parser';
 import { generateCitation, generateFallbackCitation } from '@/lib/citation-generator';

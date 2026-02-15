@@ -57,6 +57,61 @@ export async function uploadToCloudinary(
 }
 
 /**
+ * Upload a PDF to Cloudinary from a Buffer (works on serverless)
+ * @param buffer - Buffer containing the PDF data
+ * @param folder - Cloudinary folder name
+ * @param fileName - Original file name (used as public_id)
+ * @returns Cloudinary upload response
+ */
+export async function uploadBufferToCloudinary(
+  buffer: Buffer,
+  folder: string = 'syncscript_pdfs',
+  fileName?: string
+): Promise<{ success: boolean; url?: string; publicId?: string; error?: string }> {
+  return new Promise((resolve) => {
+    const uploadOptions: any = {
+      folder,
+      resource_type: 'auto',
+      type: 'upload',
+      access_mode: 'public',
+    };
+
+    if (fileName) {
+      uploadOptions.public_id = fileName.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9.-]/g, '_');
+      uploadOptions.use_filename = true;
+      uploadOptions.unique_filename = true;
+    }
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      uploadOptions,
+      (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          resolve({
+            success: false,
+            error: error.message || 'Upload failed',
+          });
+        } else if (result) {
+          resolve({
+            success: true,
+            url: result.secure_url,
+            publicId: result.public_id,
+          });
+        } else {
+          resolve({
+            success: false,
+            error: 'No result from Cloudinary',
+          });
+        }
+      }
+    );
+
+    // Write buffer to stream
+    uploadStream.end(buffer);
+  });
+}
+
+/**
  * Generate a Cloudinary URL for a PDF with optional transformations
  * Based on video tutorial: cloudinary.url() method
  * @param publicId - The public ID of the PDF (includes folder)
