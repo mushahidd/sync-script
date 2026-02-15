@@ -67,10 +67,10 @@ export function Sidebar() {
       </nav>
 
       {/* User Section */}
-      <div className="p-4 border-t border-slate-800 space-y-2">
+      <div className="p-4 border-t border-slate-800 space-y-3">
         <div className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-slate-800/50">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center flex-shrink-0">
-            <span className="text-slate-950 font-bold text-xs">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-bold text-sm">
               {session?.user?.name?.charAt(0).toUpperCase() || "U"}
             </span>
           </div>
@@ -81,13 +81,14 @@ export function Sidebar() {
         </div>
         
         <motion.button
-          whileHover={{ x: 4 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleLogout}
-          className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800/50 transition-colors"
+          className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all font-medium"
           title="Logout"
         >
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          <span className="font-medium">Logout</span>
+          <LogOut className="w-5 h-5" />
+          <span>Sign Out</span>
         </motion.button>
       </div>
     </>
@@ -98,9 +99,10 @@ export function Sidebar() {
       {/* Mobile Menu Toggle Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg glass glass-border text-white"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-xl bg-slate-900/90 backdrop-blur-sm border border-slate-700 text-white shadow-lg hover:border-primary/50 transition-all"
+        aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
       >
-        {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
       {/* Mobile Overlay */}
@@ -129,7 +131,7 @@ export function Sidebar() {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="lg:hidden w-64 h-screen glass glass-border flex flex-col fixed top-0 z-40"
+            className="lg:hidden w-72 h-screen bg-slate-950/95 backdrop-blur-xl border-r border-slate-800 flex flex-col fixed top-0 left-0 z-40 pt-16"
           >
             <SidebarContent />
           </motion.aside>

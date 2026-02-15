@@ -196,14 +196,14 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 sm:mb-8 mt-16 lg:mt-0"
         >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 sm:mb-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold mb-2 gradient-text">Research Vaults</h1>
-              <p className="text-sm sm:text-base text-slate-400">Manage your collaborative knowledge bases</p>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* User Dropdown */}
-              <div className="relative">
+          <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-1 gradient-text">Research Vaults</h1>
+                <p className="text-sm text-slate-400">Manage your collaborative knowledge bases</p>
+              </div>
+              {/* User Dropdown - Desktop Only */}
+              <div className="hidden lg:block relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700 hover:border-primary/50 transition-all"
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
                     {session?.user?.name?.charAt(0).toUpperCase() || "U"}
                   </div>
-                  <div className="hidden sm:block text-left">
+                  <div className="text-left">
                     <p className="text-sm font-medium">{session?.user?.name}</p>
                   </div>
                   <ChevronDown className="w-4 h-4 text-slate-400" />
@@ -234,30 +234,32 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
-              <Button size="lg" className="group" onClick={() => setIsModalOpen(true)}>
-                <Plus className="w-5 h-5 mr-2" />
-                <span className="hidden sm:inline">Create Vault</span>
-              </Button>
             </div>
+            {/* Create Vault Button - Full width on mobile */}
+            <Button size="lg" className="w-full sm:w-auto sm:self-start group" onClick={() => setIsModalOpen(true)}>
+              <Plus className="w-5 h-5 mr-2" />
+              Create New Vault
+            </Button>
           </div>
 
           {/* Search & Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
+          <div className="space-y-3">
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input 
                 placeholder="Search vaults..." 
-                className="pl-12 bg-slate-900/50"
+                className="pl-12 bg-slate-900/50 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            {/* Filter Controls - Horizontal Scroll on Mobile */}
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin scrollbar-thumb-slate-700">
               {/* Filter Dropdown */}
               <select
                 value={filterMode}
                 onChange={(e) => setFilterMode(e.target.value as any)}
-                className="px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700 text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                className="flex-shrink-0 px-3 py-2.5 rounded-lg bg-slate-900/50 border border-slate-700 text-sm focus:outline-none focus:border-primary/50 transition-colors min-w-[100px]"
               >
                 <option value="all">All Vaults</option>
                 <option value="owner">My Vaults</option>
@@ -267,23 +269,23 @@ export default function DashboardPage() {
               <select
                 value={sortMode}
                 onChange={(e) => setSortMode(e.target.value as any)}
-                className="px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700 text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                className="flex-shrink-0 px-3 py-2.5 rounded-lg bg-slate-900/50 border border-slate-700 text-sm focus:outline-none focus:border-primary/50 transition-colors min-w-[90px]"
               >
                 <option value="recent">Recent</option>
                 <option value="name">Name</option>
                 <option value="members">Members</option>
               </select>
               {/* View Toggle */}
-              <div className="flex border border-slate-700 rounded-lg overflow-hidden">
+              <div className="flex-shrink-0 flex border border-slate-700 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-slate-900/50 text-slate-400 hover:text-white"}`}
+                  className={`p-2.5 transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-slate-900/50 text-slate-400 hover:text-white"}`}
                 >
                   <LayoutGrid className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 transition-colors ${viewMode === "list" ? "bg-primary text-white" : "bg-slate-900/50 text-slate-400 hover:text-white"}`}
+                  className={`p-2.5 transition-colors ${viewMode === "list" ? "bg-primary text-white" : "bg-slate-900/50 text-slate-400 hover:text-white"}`}
                 >
                   <List className="w-5 h-5" />
                 </button>
