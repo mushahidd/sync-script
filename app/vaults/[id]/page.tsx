@@ -962,7 +962,7 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
                                             onClick={async () => {
                                               try {
                                                 await navigator.clipboard.writeText(source.citation!);
-                                                setCopiedCitations(prev => new Set([...prev, source.id]));
+                                                setCopiedCitations(prev => new Set([...Array.from(prev), source.id]));
                                                 setTimeout(() => {
                                                   setCopiedCitations(prev => {
                                                     const newSet = new Set(prev);
