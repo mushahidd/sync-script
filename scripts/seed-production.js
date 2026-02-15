@@ -1,3 +1,6 @@
+// Set production DATABASE_URL before requiring Prisma
+process.env.DATABASE_URL = 'postgresql://neondb_owner:npg_qtp93FuNHhJa@ep-crimson-flower-aifyyl9l-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require';
+
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 
@@ -5,8 +8,16 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Starting database seeding with comprehensive demo data...');
+  console.log('📡 Connected to:', process.env.DATABASE_URL.split('@')[1].split('/')[0]);
+
+  // Warm up connection first (Neon databases sleep after inactivity)
+  console.log('⏳ Warming up database connection...');
+  await prisma.$connect();
+  await prisma.$queryRaw`SELECT 1`;
+  console.log('✅ Database connection ready');
 
   // Clean up existing data
+  console.log('🗑️ Clearing existing data...');
   await prisma.annotation.deleteMany();
   await prisma.fileUpload.deleteMany();
   await prisma.source.deleteMany();
@@ -257,7 +268,7 @@ async function main() {
     },
   });
 
-  const prismaSource = await prisma.source.create({
+  const prismaSourceData = await prisma.source.create({
     data: {
       title: 'Prisma Best Practices Guide',
       url: 'https://www.prisma.io/docs/guides',
@@ -291,7 +302,7 @@ async function main() {
       },
       {
         content: '⚡ Prisma tip: Always use select/include to limit returned fields. Prevents fetching entire objects when you only need id and name.',
-        sourceId: prismaSource.id,
+        sourceId: prismaSourceData.id,
         authorId: bob.id,
       },
     ],
@@ -429,7 +440,7 @@ async function main() {
     data: {
       title: 'Jobs To Be Done Framework',
       url: 'https://hbr.org/2016/09/know-your-customers-jobs-to-be-done',
-      citation: 'Christensen, C. M., et al. (2016). Know your customers\' jobs to be done. Harvard Business Review, 94(9), 54-62.',
+      citation: "Christensen, C. M., et al. (2016). Know your customers' jobs to be done. Harvard Business Review, 94(9), 54-62.",
       vaultId: pmVault.id,
     },
   });
@@ -438,7 +449,7 @@ async function main() {
     data: {
       title: 'The Lean Startup Methodology',
       url: 'https://theleanstartup.com/principles',
-      citation: 'Ries, E. (2011). The lean startup: How today\'s entrepreneurs use continuous innovation. Crown Business.',
+      citation: "Ries, E. (2011). The lean startup: How today's entrepreneurs use continuous innovation. Crown Business.",
       vaultId: pmVault.id,
     },
   });
@@ -447,7 +458,7 @@ async function main() {
   await prisma.annotation.createMany({
     data: [
       {
-        content: 'JTBD framework: Focus on WHY customers "hire" your product. Not demographics, but the progress they\'re trying to make. Game-changer for user research.',
+        content: "JTBD framework: Focus on WHY customers \"hire\" your product. Not demographics, but the progress they're trying to make. Game-changer for user research.",
         sourceId: jobsSource.id,
         authorId: diana.id,
       },
