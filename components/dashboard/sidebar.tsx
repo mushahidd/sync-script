@@ -118,10 +118,12 @@ export function Sidebar() {
         )}
       </AnimatePresence>
 
-      {/* Sidebar Container for Desktop */}
-      <aside className="hidden lg:flex flex-col w-64 h-screen glass glass-border sticky top-0">
+      {/* Sidebar Container for Desktop - Fixed position */}
+      <aside className="hidden lg:flex flex-col w-64 h-screen bg-slate-950/95 backdrop-blur-xl border-r border-slate-800 fixed top-0 left-0 z-30">
         <SidebarContent />
       </aside>
+      {/* Spacer to offset fixed sidebar */}
+      <div className="hidden lg:block w-64 flex-shrink-0" />
 
       {/* Sidebar for Mobile */}
       <AnimatePresence>
