@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:setup": "node scripts/setup-db.js",
+    "db:neon": "node scripts/setup-neon.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
