@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { SidebarProvider } from "@/components/dashboard/sidebar-context";
 
 export const metadata: Metadata = {
   title: "SyncScript - Collaborative Research & Citation Vaults",
