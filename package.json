@@ -1,0 +1,56 @@
+{
+  "name": "syncscript",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:setup": "node scripts/setup-db.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "pdf:verify": "tsx scripts/verify-pdfs.ts",
+    "pdf:migrate": "tsx scripts/migrate-pdfs.ts",
+    "pdf:fix": "node scripts/fix-existing-pdfs.js",
+    "pdf:emergency": "node scripts/emergency-fix-pdfs.js",
+    "test:cloudinary": "node scripts/test-cloudinary.js"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.9.0",
+    "clsx": "^2.1.0",
+    "dotenv": "^17.3.1",
+    "framer-motion": "^11.0.0",
+    "lucide-react": "^0.263.1",
+    "next": "14.2.0",
+    "next-auth": "^4.24.5",
+    "openai": "^6.22.0",
+    "pdf-parse": "^2.4.5",
+    "pusher": "^5.3.2",
+    "pusher-js": "^8.4.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "tailwind-merge": "^2.2.0",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5"
+  }
+}

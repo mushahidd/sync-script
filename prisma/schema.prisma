@@ -1,0 +1,138 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  OWNER
+  CONTRIBUTOR
+  VIEWER
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String?  // Optional for future OAuth integration
+  createdAt DateTime @default(now())
+
+  // Relations
+  vaultMemberships VaultMember[]
+  annotations      Annotation[]
+  fileUploads      FileUpload[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Vault {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  members     VaultMember[]
+  sources     Source[]
+  fileUploads FileUpload[]
+
+  @@index([createdAt])
+  @@map("vaults")
+}
+
+// Many-to-Many relationship with role-based access control
+// NOTE: Business logic should ensure only ONE OWNER per vault
+// This can be enforced in the application layer or via database triggers
+model VaultMember {
+  id        String   @id @default(uuid())
+  role      Role     @default(VIEWER)
+  joinedAt  DateTime @default(now())
+
+  // Foreign Keys
+  userId    String
+  vaultId   String
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vault     Vault    @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  // Composite unique constraint: A user can only have one membership per vault
+  @@unique([userId, vaultId])
+  @@index([vaultId])
+  @@index([userId])
+  @@map("vault_members")
+}
+
+model Source {
+  id        String   @id @default(uuid())
+  title     String
+  url       String
+  citation  String?  // AI-generated citation in APA format
+  createdAt DateTime @default(now())
+
+  // Foreign Key
+  vaultId   String
+
+  // Relations
+  vault       Vault        @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  annotations Annotation[]
+
+  @@index([vaultId])
+  @@index([createdAt])
+  @@map("sources")
+}
+
+model Annotation {
+  id        String   @id @default(uuid())
+  content   String   @db.Text // Using Text type for potentially long annotations
+  createdAt DateTime @default(now())
+
+  // Foreign Keys
+  sourceId  String
+  authorId  String
+
+  // Relations
+  source    Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("annotations")
+}
+
+model FileUpload {
+  id         String   @id @default(uuid())
+  fileName   String
+  fileUrl    String   // Cloudinary/S3 URL
+  publicId   String?  // Cloudinary public ID for transformations
+  createdAt  DateTime @default(now())
+
+  // Foreign Keys
+  vaultId    String
+  uploadedBy String
+
+  // Relations
+  vault      Vault    @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  uploader   User     @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@index([vaultId])
+  @@index([uploadedBy])
+  @@index([createdAt])
+  @@map("file_uploads")
+}
