@@ -21,6 +21,12 @@ interface OCRResult {
   };
 }
 
+/** pdf-parse getText() return shape */
+interface PDFGetTextResult {
+  text: string;
+  total: number;
+}
+
 export interface PDFParseResult {
   success: boolean;
   title?: string;
@@ -48,7 +54,7 @@ export async function parsePDF(
         parser.getText(),
         timeoutMs,
         'PDF parsing timed out'
-      );
+      ) as PDFGetTextResult;
       pdfData = { text: result.text, pages: result.total };
     } finally {
       await parser.destroy();
