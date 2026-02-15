@@ -33,9 +33,9 @@ export default function LoginPage() {
       if (result?.error) {
         setError(result.error);
         setIsDemoLoading(null);
-      } else {
-        router.push("/dashboard");
-        router.refresh();
+      } else if (result?.ok) {
+        // Use full page navigation to ensure session is properly loaded
+        window.location.href = "/dashboard";
       }
     } catch (error) {
       setError("Demo login failed");
@@ -70,13 +70,13 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError(result.error);
-      } else {
-        router.push("/dashboard");
-        router.refresh();
+        setIsLoading(false);
+      } else if (result?.ok) {
+        // Use full page navigation to ensure session is properly loaded
+        window.location.href = "/dashboard";
       }
     } catch (error) {
       setError("An error occurred during login");
-    } finally {
       setIsLoading(false);
     }
   };
