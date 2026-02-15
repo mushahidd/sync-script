@@ -22,7 +22,7 @@ export function Card({ className, hover = false, children, ...props }: CardProps
         hover && "cursor-pointer",
         className
       )}
-      {...props}
+      {...(props as any)}
     >
       {children}
     </Component>
