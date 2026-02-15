@@ -8,6 +8,12 @@ import { triggerPusherEvent } from '@/lib/pusher-server';
 
 export const runtime = 'nodejs';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();

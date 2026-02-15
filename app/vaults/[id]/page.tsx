@@ -14,7 +14,7 @@ import { Modal } from "@/components/ui/modal";
 import { Tabs } from "@/components/ui/tabs";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
-// import { subscribeToChannel } from "@/lib/pusher-client";
+import { subscribeToChannel } from "@/lib/pusher-client";
 
 interface VaultData {
   id: string;
@@ -135,62 +135,61 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
 
   // Real-time sync with Pusher
   useEffect(() => {
-    // Temporarily disabled to fix loading issues
-    // if (!vaultId) return;
+    if (!vaultId) return;
 
-    // // Subscribe to vault channel for real-time updates
-    // const unsubscribe = subscribeToChannel(
-    //   `vault-${vaultId}`,
-    //   'source-added',
-    //   (data: any) => {
-    //     console.log('[Real-time] New source added:', data);
+    // Subscribe to vault channel for real-time updates
+    const unsubscribe = subscribeToChannel(
+      `vault-${vaultId}`,
+      'source-added',
+      (data: any) => {
+        console.log('[Real-time] New source added:', data);
         
-    //     // Add new source to list with animation
-    //     setVaultData((prevData) => {
-    //       if (!prevData) return prevData;
+        // Add new source to the list with animation
+        setVaultData((prevData) => {
+          if (!prevData) return prevData;
           
-    //       return {
-    //         ...prevData,
-    //         sources: [...prevData.sources, data.source],
-    //       };
-    //     });
+          return {
+            ...prevData,
+            sources: [...prevData.sources, data.source],
+          };
+        });
 
-    //     // Show notification (optional)
-    //     setUploadSuccess('New source added by collaborator!');
-    //     setTimeout(() => setUploadSuccess(null), 3000);
-    //   }
-    // );
+        // Show notification (optional)
+        setUploadSuccess('New source added by collaborator!');
+        setTimeout(() => setUploadSuccess(null), 3000);
+      }
+    );
 
-    // // Also subscribe to citation generation events
-    // const citationUnsubscribe = subscribeToChannel(
-    //   `vault-${vaultId}`,
-    //   'citation-generated',
-    //   (data: any) => {
-    //     console.log('[Real-time] Citation generated:', data);
+    // Also subscribe to citation generation events
+    const citationUnsubscribe = subscribeToChannel(
+      `vault-${vaultId}`,
+      'citation-generated',
+      (data: any) => {
+        console.log('[Real-time] Citation generated:', data);
         
-    //     // Add new source with citation to list
-    //     setVaultData((prevData) => {
-    //       if (!prevData) return prevData;
+        // Add new source with citation to the list
+        setVaultData((prevData) => {
+          if (!prevData) return prevData;
           
-    //       return {
-    //         ...prevData,
-    //         sources: [...prevData.sources, data.source],
-    //       };
-    //     });
+          return {
+            ...prevData,
+            sources: [...prevData.sources, data.source],
+          };
+        });
 
-    //     // Show notification
-    //     setCitationSuccess(`New PDF with citation added by ${data.addedBy === userId ? 'you' : 'collaborator'}!`);
-    //     setTimeout(() => setCitationSuccess(null), 3000);
-    //   }
-    // );
+        // Show notification
+        setCitationSuccess(`New PDF with citation added by ${data.addedBy === userId ? 'you' : 'collaborator'}!`);
+        setTimeout(() => setCitationSuccess(null), 3000);
+      }
+    );
 
     // Mark sync as active
     setIsLiveSyncActive(true);
 
     // Cleanup subscription on unmount
     return () => {
-      // unsubscribe();
-      // citationUnsubscribe();
+      unsubscribe();
+      citationUnsubscribe();
       setIsLiveSyncActive(false);
     };
   }, [vaultId]);
@@ -355,16 +354,13 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
   const fetchVaultData = async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching vault data for ID:', vaultId);
       const response = await fetch(`/api/vaults/${vaultId}`);
       
       if (!response.ok) {
-        console.error('Vault API response not ok:', response.status, response.statusText);
         throw new Error('Failed to fetch vault');
       }
 
       const data = await response.json();
-      console.log('Vault data received:', data);
       setVaultData(data);
     } catch (error) {
       console.error('Error fetching vault:', error);
@@ -962,7 +958,7 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
                                             onClick={async () => {
                                               try {
                                                 await navigator.clipboard.writeText(source.citation!);
-                                                setCopiedCitations(prev => new Set([...Array.from(prev), source.id]));
+                                                setCopiedCitations(prev => new Set([...prev, source.id]));
                                                 setTimeout(() => {
                                                   setCopiedCitations(prev => {
                                                     const newSet = new Set(prev);
@@ -1373,7 +1369,7 @@ export default function VaultDetailPage({ params }: { params: { id: string } }) 
                   <option value="">Choose a source...</option>
                   {vaultData?.sources.map((source) => (
                     <option key={source.id} value={source.id}>
-                      {source.title}
+                      {source.title} ({source.author}, {source.year})
                     </option>
                   ))}
                 </select>
